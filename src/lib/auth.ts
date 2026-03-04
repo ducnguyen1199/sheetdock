@@ -1,8 +1,18 @@
 import { betterAuth } from "better-auth";
-import Database from "better-sqlite3";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { drizzle } from "drizzle-orm/libsql";
+import * as schema from "./auth-schema";
+
+const db = drizzle({
+  connection: {
+    url: process.env.TURSO_DATABASE_URL!,
+    authToken: process.env.TURSO_AUTH_TOKEN!,
+  },
+  schema,
+});
 
 export const auth = betterAuth({
-  database: new Database("./sheetdock.db"),
+  database: drizzleAdapter(db, { provider: "sqlite", schema }),
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
